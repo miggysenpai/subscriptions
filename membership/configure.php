@@ -66,7 +66,6 @@ $db->update('plg_mem_settings',1,$fields);
         $intervalCount = '6';
     }
     
-    
     $price_create = $stripe->prices->create(
       [
         'product' => $productId ,
@@ -125,7 +124,7 @@ $db->update('plg_mem_settings',1,$fields);
  }
  $token = Token::generate();
  ?>
-<div class="content mt-3">
+<div class="content mt-3 ">
   <div class="row"> 
   
     <div class="col-12">
@@ -184,13 +183,19 @@ $db->update('plg_mem_settings',1,$fields);
     </div>
   </div>
 
- 		<div class="row">
- 			<div class="col-sm-12 col-12">
+ 		<div class="row ">
+ 			<div class="col-sm-6 col-6 ">
             <hr />
-          <h3><?php if($e){ echo "Update"; }else{ echo "Add New";}?> Level</h3>
+        
+         <div class="card-deck mb-3 ">
+            <div class="card mb-4 shadow-sm my-3 p-3 bg-white rounded shadow-sm">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal text-center"><?php if($e){ echo "Update"; }else{ echo "Add New";}?> Level</h4>
+              </div>
+            <div class="container">
           <form class="" action="<?php if($e){ echo "admin.php?view=plugins_config&plugin=membership&edit=$edit";}?>" method="post" > 
             <input type="hidden" name="csrf" value="<?=$token?>" />
-
+            <br />
             <div class="form-group">
               <label  for="plan_name">Level Name*</label>
               <input class="form-control" type="text" name="plan_name" value="<?php if($e){echo $thisPlan->plan_name;}?>" required>
@@ -236,20 +241,26 @@ $db->update('plg_mem_settings',1,$fields);
               <?php }else{ ?>
                 <input type="submit" name="plugin_membership" value="Add Level" class="btn btn-primary">
               <?php } ?>
-
+            </div></div></div>
             </div>
           </form>
  			</div> <!-- /.col -->
  			<br />
  		
  		
-      <div class="col-sm-12 col-12">
+      <div class="col-sm-6 col-6 ">
           	<hr />
-          <h3><?php if($e){ echo "Update"; }?> Pricing Option</h3>
+          	 <div class="card-deck mb-3 ">
+            <div class="card mb-4 shadow-sm my-3 p-3 bg-white rounded shadow-sm">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal text-center"><?php if($e){ echo "Update"; }?> Pricing Option</h4>
+              </div>
+            <div class="container">
           <form class="" action="<?php if($e){ echo "admin.php?view=plugins_config&plugin=membership&edit=$edit";}?>" method="post" >
             <input type="hidden" name="csrf" value="<?=$token?>" />
 
             <div class="form-group">
+                <br />
               <label  for="plan_name">Plan</label>
               <select class="form-control" name="plan" required>
                 <option value="" selected="selected" disabled >--Choose Plan--</option>
@@ -263,7 +274,7 @@ $db->update('plg_mem_settings',1,$fields);
               <label for="days"># of Days</label>
               <input class="form-control" type="number" name="days" value="" min="1" step="1" placeholder="30" required>
             </div>
-            
+               
             <?/* 
             intervals can be added. 
             recurring.interval_count
@@ -299,15 +310,14 @@ $db->update('plg_mem_settings',1,$fields);
 
             </div>
           </form>
- 			</div> <!-- /.col -->
- 		</div> <!-- /.row -->
-    <div class="row">
+ 			</div></div></div> </div><!-- /.col -->
+ 		
+ 		
+    <div class="col-sm-12 col-12">   
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom mb-0">Existing Plans</h6>
         
-        
-      <div class="col-12">
-          <hr />
-        <h4>Existing Plans</h4>
-        <table class="table table-striped">
+        <table class="table table-striped text-gray-dark">
           <thead>
             <tr>
               <th>Plan Name</th><th>Description</th><th>Perms Added</th><th>Icon</th><th>Ordering</th><th>Delete</th><th>Edit</th>
@@ -333,13 +343,8 @@ $db->update('plg_mem_settings',1,$fields);
             <?php } ?>
           </tbody>
         </table>
-      </div>
-    </div>
-    
-    
-    <div class="row">
-      <div class="col-12">
-        <h4>Pricing Options</h4>
+      <br />
+    <h6 class="border-bottom border-gray  mb-0">Price Settings</h6>
         <table class="table table-striped">
           <thead>
             <tr>
@@ -365,13 +370,9 @@ $db->update('plg_mem_settings',1,$fields);
             <?php } ?>
           </tbody>
         </table>
-      </div>
-    </div>
-    
-    <div class="row">
-      <div class="col-12">
-        <h4>Stripe Keys</h4>
-        <table class="table table-striped">
+        <br />
+    <h6 class="border-bottom border-gray  mb-0">Stripe Keys</h6>
+     <table class="table table-striped">
           <thead>
             <tr>
               <th>Secret</th><th>Public</th><th>Webhook</th><th>Currency</th><th>Edit</th>
@@ -380,7 +381,6 @@ $db->update('plg_mem_settings',1,$fields);
 
               <?php
             $keys = $db->query("SELECT * FROM `plg_mem_stripe`")->first(); 
-            
             ?>
             <tr>
                 <td><?php echo substr($keys->stripe_s,0,15); ?>...</td>
@@ -389,24 +389,131 @@ $db->update('plg_mem_settings',1,$fields);
                 <td><?=$keys->stripe_currency?></td>
                 <td><button type="button" onclick="window.location.href = '<?=$us_url_root?>usersc/plugins/membership/stripeOptions.php';" name="button" class="btn btn-success">Edit</button></td>
             </tr>
-            
           </tbody>
         </table>
-      </div>
+    </div>
     </div>
     
-    <div class="row">
-      <div class="col-12">
-        <h4>Stripe Settings</h4>
-        <hr />
-        <button type="button" onclick="window.location.href = '<?=$us_url_root?>usersc/plugins/membership/stripeSubscriptions.php';" 
-                name="button" class="btn btn-primary">Stripe Subscriptions</button>
+    <style>
+        .a-css a {
+            color: #333 ;
+        }
+        .a-css a:hover {
+            color: #666 ;
+        }
+    </style>
+    
+    <div class="col-sm-12 col-12">   
+    <div class="my-3 p-3 bg-white rounded shadow-sm">
+    <h6 class="border-bottom mb-0">Stripe Settings</h6>
+    <br />
+    <div class="row a-css">
+    
+    
+        <div class="col-md-4 my-3 rounded">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSubscriptions.php">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-plus fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Subscriptions</b> 
+                            <p class="text-muted">View stripe your subscriptions</p>
+                         </div>
+                </div>
+            </a>
+        </div>
         
-        <button type="button" onclick="window.location.href = '<?=$us_url_root?>usersc/plugins/membership/stripeProducts.php';" 
-                name="button" class="btn btn-primary">Stripe Products</button>
+        <div class="col-md-4 my-3 rounded">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeProducts.php">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-circle fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Products</b> 
+                            <p class="text-muted">View stripe your Products</p>
+                         </div>
+                </div>
+            </a>
+        </div>
         
-      </div>
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-circle-o  fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Customers</b> 
+                            <p class="text-muted">View stripe your Customers</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-tasks fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Transactions</b> 
+                            <p class="text-muted">View stripe all stripe transactions</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-university fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Payouts</b> 
+                            <p class="text-muted">Check out where your money is going</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-exchange fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Refunds</b> 
+                            <p class="text-muted">Create, view and list all refunds</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-ticket fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Coupons </b> 
+                            <p class="text-muted">Create, view and list all Coupons</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-4 my-3 rounded">
+            <a href="">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-book fa-4x" aria-hidden="true"></i> </div>
+                    <div class="d-flex flex-column"> <b>Stripe Invoices</b> 
+                            <p class="text-muted">View all invoices</p>
+                         </div>
+                </div>
+            </a>
+        </div>
+        
+        
+      
+        
+        
+    
+       
+        
+    </div>  
+    </div>    
+    <br />    
     </div>
+    
+    </div>
+    
+    
+    
     <br /> <br /> <br /> <br />
     
     
