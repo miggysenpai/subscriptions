@@ -74,8 +74,7 @@ $db->update('plg_mem_settings',1,$fields);
         'recurring' => ['interval' =>  $reccuring, 'interval_count' => $intervalCount],
       ]
     );
-
-    
+ 
    $fields = array(
      'plan'=>Input::get('plan'),
      'cost'=>Input::get('cost'),
@@ -131,7 +130,7 @@ $db->update('plg_mem_settings',1,$fields);
       <a href="<?=$us_url_root?>users/admin.php?view=plugins">Return to the Plugin Manager</a>
       <?
       $keys = $db->query("SELECT * FROM `plg_mem_stripe`")->first(); 
-      if($keys->stripe_s  == "sk_live_xxx" && $keys->stripe_p == "pk_live_xxx" ){
+      if($keys->stripe_s  == "sk_xxx" && $keys->stripe_p == "pk_xxx" ){
       
       ?>
           <div class="jumbotron">
@@ -411,7 +410,7 @@ $db->update('plg_mem_settings',1,$fields);
     
     
         <div class="col-md-4 my-3 rounded">
-            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSubscriptions.php">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=subscriptions">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-plus fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Subscriptions</b> 
@@ -422,7 +421,7 @@ $db->update('plg_mem_settings',1,$fields);
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeProducts.php">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=products">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-circle fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Products</b> 
@@ -433,7 +432,7 @@ $db->update('plg_mem_settings',1,$fields);
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=customers">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-user-circle-o  fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Customers</b> 
@@ -444,18 +443,18 @@ $db->update('plg_mem_settings',1,$fields);
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=transactions">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-tasks fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Transactions</b> 
-                            <p class="text-muted">View stripe all stripe transactions</p>
+                            <p class="text-muted">View stripe all stripe transactions and refund a transaction</p>
                          </div>
                 </div>
             </a>
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=payouts">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-university fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Payouts</b> 
@@ -466,29 +465,29 @@ $db->update('plg_mem_settings',1,$fields);
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=refunds">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-exchange fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Refunds</b> 
-                            <p class="text-muted">Create, view and list all refunds</p>
+                            <p class="text-muted">View all refunds</p>
                          </div>
                 </div>
             </a>
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=coupons">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-ticket fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Coupons </b> 
-                            <p class="text-muted">Create, view and list all Coupons</p>
+                            <p class="text-muted">Create, view and delete Coupons</p>
                          </div>
                 </div>
             </a>
         </div>
         
         <div class="col-md-4 my-3 rounded">
-            <a href="">
+            <a href="<?=$us_url_root?>usersc/plugins/membership/stripeSettings.php?page=invoices">
                 <div class="d-flex align-items-center">
                     <div class="rounded-circle mx-3 text-center d-flex align-items-center justify-content-center "> <i class="fa fa-book fa-4x" aria-hidden="true"></i> </div>
                     <div class="d-flex flex-column"> <b>Stripe Invoices</b> 
@@ -497,23 +496,11 @@ $db->update('plg_mem_settings',1,$fields);
                 </div>
             </a>
         </div>
-        
-        
-      
-        
-        
-    
-       
-        
     </div>  
     </div>    
     <br />    
     </div>
-    
     </div>
-    
-    
-    
     <br /> <br /> <br /> <br />
     
     

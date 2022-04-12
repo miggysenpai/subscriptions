@@ -21,8 +21,6 @@ $stripe_customer = $stripeCustSub->stripe_customer;
 $stripe_sub = $stripeCustSub->stripe_subscription;
 ?>
 
- 
-
 <div class="container">
 <?php 
 if(pluginActive('membership',true)){
@@ -47,7 +45,8 @@ $cost = Input::get('plan_cst');
 $subChange = Input::get('subscription');
 $getPayment = Input::get('payment');
 
-
+// ****** Stripe composer 
+require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
 
                     
 // ****** SUBSCRIPTION MADE, PROCCESSING CODE
@@ -55,7 +54,6 @@ $getPayment = Input::get('payment');
 	    if ($user->data()->plg_mem_exp = NULL){
 	        
 	    }
- 		require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
                     //setting important variables
                     $name = $_POST['cname'];
                     $email = $_POST['email'];
@@ -72,7 +70,6 @@ $getPayment = Input::get('payment');
                     
                     $customerid = $customer->id;
                     
-              
                     //create subscription, (Request POST body to stripe)
                     $subscription = $stripe->subscriptions->create([
                     'customer' => $customerid,
@@ -91,7 +88,6 @@ $getPayment = Input::get('payment');
                           ]
                     ]);
                     
-                    
                     if($subscription->status == 'active'){
                         //woot woot, it works 
                         header("Location: membership.php?&display=success");
@@ -99,8 +95,6 @@ $getPayment = Input::get('payment');
                       echo ' problema sir';
                     }
 	}
-
-
 
 // ******* CHECKOUT CODE
 	if(!empty($_POST && $membershipChange == "membership" && $opt == "checkout" )){
@@ -125,11 +119,8 @@ $getPayment = Input::get('payment');
 		   $pass = true;
 	}
 	
-	
 // ****** SUBSCRIPTION CANCELLED ;c
      	if($subChange == "unsubscribe"){
-     	    $keys = $db->query("SELECT * FROM `plg_mem_stripe`")->first(); 
-     	    require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
      	    $stripe = new \Stripe\StripeClient($keys->stripe_s);
      	    $subscription = $stripe->subscriptions->retrieve($stripe_sub);
          	    if($subscription->status == "active"){
@@ -149,7 +140,6 @@ $getPayment = Input::get('payment');
      	
 // ******  SUBSCRIPTION UPDATED	
      	if($subChange == "updateProcess" && $_POST){
-     	    require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
      	    $stripe = new \Stripe\StripeClient($keys->stripe_s);
      	    $plan = Input::get('plan');
      	    $cost = Input::get('plan_cst');
@@ -205,7 +195,6 @@ $getPayment = Input::get('payment');
      	if($getPayment == "add" && $_POST){
             $token = $_POST['stripeToken'];
             $custID = $db->query("SELECT * FROM `plg_mem_stripe_custID` WHERE user = ?",[$user->data()->id])->first();
-            require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
      	    $stripe = new \Stripe\StripeClient($keys->stripe_s);
             $stripe->customers->createSource($custID->stripe_customer,['source' => $token]);
             header("location: /"); 
@@ -214,7 +203,6 @@ $getPayment = Input::get('payment');
 // ******  SET DEFAULT PAYMENT	
         if($getPayment == "setDefault"){
             $custID = $db->query("SELECT * FROM `plg_mem_stripe_custID` WHERE user = ?",[$user->data()->id])->first();
-            require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
      	    $stripe = new \Stripe\StripeClient($keys->stripe_s);
      	    $stripe->customers->update($custID->stripe_customer,['default_source' => (Input::get('id')) ]);
             header("location: /"); 
@@ -223,338 +211,14 @@ $getPayment = Input::get('payment');
 // ******  DELETE CARD	
         if($getPayment == "delete"){
             $custID = $db->query("SELECT * FROM `plg_mem_stripe_custID` WHERE user = ?",[$user->data()->id])->first();
-            require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
      	    $stripe = new \Stripe\StripeClient($keys->stripe_s);
      	    $stripe->customers->deleteSource($custID->stripe_customer,(Input::get('id')),[]);
             header("location: /"); 
      	}
 ?>
 
-	<!-- a bunch of css that can be stored elsewhere -->
-		<style>
-		@import url('https://fonts.googleapis.com/css?family=Raleway&display=swap');
-		:root {
-		  --light-grey: #F6F9FC;
-		  --dark-terminal-color: #0A2540;
-		  --accent-color: #635BFF;
-		  --radius: 3px;
-		}
-		form > * {
-		  margin: 10px 0;
-		}
-		button {
-		  background-color: var(--accent-color);
-		}
-		button {
-		  background: #1bb1dc;
-		  border-radius: 3px;
-		  color: white;
-		  border: 0;
-		  padding: 12px 16px;
-		  margin-top: 16px;
-		  font-weight: 600;
-		  cursor: pointer;
-		  transition: all 0.2s ease;
-		  display: block;
-		}
-		button:hover {
-		  filter: contrast(115%);
-		}
-		button:active {
-		  transform: translateY(0px) scale(0.98);
-		  filter: brightness(0.9);
-		}
-		button:disabled {
-		  opacity: 0.5;
-		  cursor: none;
-		}
-		input,  {
-		  display: block;
-		  font-size: 1.1em;
-		  width: 100%;
-		}
-		.titleCost {
-		  font-weight: 700;
-		  margin-bottom: 15px;
-		  font-size:2em;
-		  color:#555;
-		}
-		#messages {
-		  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New';
-		  display: none; /* hide initially, then show once the first message arrives */
-		  background-color: #0A253C;
-		  color: #00D924;
-		  padding: 20px;
-		  margin: 20px 0;
-		  border-radius: 3px;
-		  font-size:0.7em;
-		}
-        hr {
-            color: #333;
-            overflow: visible;
-            text-align: center;
-            height: 5px;
-            font-size:0.7rem;
-        }
-        .hr hr:after {
-            background: #fff;
-            color: #666;
-            content: 'Pay with Card';
-            padding: 0 4px;
-            position: relative;
-            top: -9px;
-        }
-        /*important stuff here*/
-        * {
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            -webkit-text-size-adjust: none;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-            Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-            font-size: 15px;
-            line-height: 1.4em;
-        }
-                
-        /* Checkout */
-        #checkout {
-            max-width: 480px;
-            margin: 0 auto;
-            transition: visibility 0s, opacity 0.5s linear 0.5s;
-        }
-        #main.checkout #checkout {
-            visibility: visible;
-            opacity: 1;
-        }
-        section {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            text-align: left;
-        }
-        h1 {
-            margin: 0 0 20px 0;
-            font-size: 20px;
-            font-weight: 500;
-        }
-        h2 {
-            margin: 15px 0;
-            color: #32325d;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-                
-        /* Form */
-                
-        fieldset {
-            margin-bottom: 20px;
-            background: #fff;
-            box-shadow: 0 1px 3px 0 rgba(50, 50, 93, 0.15),
-            0 4px 6px 0 rgba(112, 157, 199, 0.15);
-            border-radius: 4px;
-            border: none;
-            font-size: 0;
-        }
-        fieldset label {
-            position: relative;
-            display: flex;
-            flex-direction: row;
-            height: 42px;
-            padding: 10px 0;
-            align-items: center;
-            justify-content: center;
-            color: #8898aa;
-            font-weight: 400;
-        }
-        fieldset label:not(:last-child) {
-            border-bottom: 1px solid #f0f5fa;
-        }
-        fieldset label.state {
-            display: inline-flex;
-            width: 75%;
-        }
-        fieldset:not(.with-state) label.state {
-            display: none;
-        }
-        fieldset label.zip {
-            display: inline-flex;
-            width: 100%;
-        }
-        fieldset:not(.with-state) label.zip {
-            width: 100%;
-        }
-        fieldset label span {
-            min-width: 125px;
-            padding: 0 15px;
-            text-align: right;
-        }
-        fieldset .redirect label span {
-            width: 100%;
-            text-align: center;
-        }
-        .field {
-            flex: 1;
-            padding: 0 15px;
-            background: transparent;
-            font-weight: 400;
-            color: #31325f;
-            outline: none;
-            cursor: text;
-        }
-        .field::-webkit-input-placeholder {
-            color: #aab7c4;
-        }
-        .field::-moz-placeholder {
-            color: #aab7c4;
-        }
-        .field:-ms-input-placeholder {
-            color: #aab7c4;
-        }
-        input {
-            flex: 1;
-            border-style: none;
-            outline: none;
-            color: #313b3f;
-        }
-        ::-webkit-input-placeholder {
-            color: #cfd7e0;
-        }
-        ::-moz-placeholder {
-            color: #cfd7e0;
-            opacity: 1;
-        }
-        :-ms-input-placeholder {
-            color: #cfd7e0;
-        }
-        input:-webkit-autofill,
-        select:-webkit-autofill {
-        -webkit-text-fill-color: #666ee8;
-        transition: background-color 100000000s;
-        -webkit-animation: 1ms void-animation-out 1s;
-        }
-        .StripeElement--webkit-autofill {
-            background: transparent !important;
-        }
-        #card-element {
-            margin-top: -1px;
-            width: 100%;
-        }
-        #ideal-bank-element {
-            padding: 0;
-        }
-        button {
-            display: block;
-            background: #1bb1dc;
-            color: #fff;
-            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-            border-radius: 4px;
-            border: 0;
-            font-weight: 700;
-            width: 100%;
-            height: 40px;
-            outline: none;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        button:focus {
-            background: #555abf;
-        }
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 7px 14px 0 rgba(50, 50, 93, 0.1),
-            0 3px 6px 0 rgba(0, 0, 0, 0.08);
-        }
-        button:active {
-            background: #43458b;
-        }
-        .card-number {
-            padding-left: 8px;
-            white-space: nowrap;
-            font-family: Source Code Pro, monospace;
-            color: #0d2b3e;
-            font-weight: 500;
-        }
-        .card-number span {
-            display: inline-block;
-            width: 8px;
-        }
-        #payment-request-button iframe {
-            border-radius: 4px;
-            border: 0;
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
-
-        :root {
-            --back: #efeef4;
-            --theme: #666;
-        }
-        .background {
-            display: grid;
-            place-items: center;
-        }
-        .background .paper {
-            width: 400px;
-            padding: 30px;
-            background: #fff;
-            border-radius: 10px;
-        }
-        .background .header-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .background .header-title span {
-            font-weight: 400;
-            opacity: 0.5;
-        }
-        .background  .radio-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px 0;
-        }
-        .background .lbl-radio {
-            display: block;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            padding-left: 50px;
-            position: relative;
-            cursor: pointer;
-        }
-        .background .lbl-radio .content .title {
-            font-weight: 600;
-            margin-bottom: 7px;
-        }
-        .background .lbl-radio .content .subtext {
-            opacity: 0.5;
-            font-size: 14px;
-        }
-        .background .marker {
-            width: 15px;
-            height: 15px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            position: absolute;
-            left: 20px;
-            top: 40%;
-        }
-        .background input[type='radio']:checked + .lbl-radio {
-            border-color: var(--theme);
-        }
-        .background input[type='radio']:checked + .lbl-radio > .marker {
-            border: 1px solid var(--theme);
-        }
-        .background input[type='radio'] {
-        	display: none;
-        }
-</style>
+<link rel="stylesheet" href="<?=$us_url_root?>usersc/plugins/membership/subscriptions.css">
 <script src="https://js.stripe.com/v3/"></script> 
-  
-  
     
  <?php  
 // ****** SUBSCRIPTION CHOICES
@@ -630,7 +294,6 @@ if($membershipChange == "membership" && !$pass){ ?>
 // ****** SUBSCRIPTION CHECKOUT
 if($membershipChange == "membership" && $pass && $opt == "checkout"){
 $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->first();
-
 ?>
 <br />
 <br /><br />
@@ -743,11 +406,7 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
       form.submit();
     }
   </script>
-  
-<?   
-}
-}//end tag
-?>
+<?    } }//end tag ?>
 <br/> 
 
 <?php 
@@ -765,7 +424,6 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
         <hr />
             <?php 
             if($status == "Active"){
-                    require_once($abs_us_root.$us_url_root.'usersc/plugins/membership/vendor/autoload.php');
                     $stripe = new \Stripe\StripeClient($keys->stripe_s);
                     $subscription = $stripe->subscriptions->retrieve($stripe_sub);
                     $stripe_price = $subscription->items->data[0]->price->id;
@@ -827,8 +485,8 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
             </div>
             <br/><br /><br />
             <div class="row">  
-            <h6>Invoices</h6>
-            <table class='table '>
+                <h6>Invoices</h6>
+                <table class='table '>
                  <thead> 
                     <? 
                     foreach ($invoiceLoop as $rslt) {
@@ -841,14 +499,12 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
                           <td class='text-capitalize'>".$rslt->status."</td>
                           <td><a href='".$rslt->hosted_invoice_url."'>View <span class='glyphicon glyphicon-new-window'></span></a></td>
                         </tr>
-                        ";
-                    }
+                        "; }
                     ?>
                         </thead>
                 </table>
                     
-                </div>
-            
+            </div>
             <?} else { 
                 //take them to create membership and a customer id with stripe.
                 header("Location: membership.php?change=membership"); }
@@ -858,39 +514,33 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
 // ****** UPDATE SUBSCRIPTION
         if($membershipChange == "" && $opt == "" &&  $subChange == "update" ){?>
         <form class="" action="membership.php?subscription=updateProcess" method="post">
+            
             <div class="card-body">
-              <div class="member-profile position-absolute w-100 text-center">
-                  
-                </div>
               <div class="card-text pt-1">
                    <div class="card-text pt-1">
                 <div class="mb-3 text-center" >
-                  
+                    <header class="header-title">Updating your subscription will charge your default card the full amount! <span></span></header>
                     <section class="background">
                         <div class="paper">
                             <header class="header-title">Membership <span></span></header>
                               <aside class="radio-container">
-                                <?php foreach($plans as $p){
-                                // select the plan
-                                ?>
-                                    <input type="radio" name="plan" class="planOption" id="<?=$p->plan_name?>"  value="<?=$p->id?>"  checked required/>
-                                    <label for="<?=$p->id?>" class="lbl-radio">
-                                      <div class="content">
-                                        <div class="title"><?=$p->plan_name?></div>
-                                      </div>
-                                    </label>
-                                <?php  } ?>
-                    </aside>
+                                    <?php foreach($plans as $p){
+                                    // select the plan
+                                    ?>
+                                        <input type="radio" name="plan" class="planOption" id="<?=$p->plan_name?>"  value="<?=$p->id?>"  checked required/>
+                                        <label for="<?=$p->id?>" class="lbl-radio">
+                                          <div class="content">
+                                            <div class="title"><?=$p->plan_name?></div>
+                                          </div>
+                                        </label>
+                                    <?php  } ?>
+                                </aside>
                         </div>
                     </section>
                 </div>  
                 
-                    <div class="form-group text-center">
-                        
-                        <style>
-                        
-                        </style>
-                        <?// select the pricing ?>
+                <div class="form-group text-center">
+                    <?// select the pricing ?>
                         <section class="background">
                             <div class="paper">
                               <header class="header-title">Choose service <span>Subscription</span></header>
@@ -898,7 +548,7 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
                                     <?php
                                     $costs = $db->query("SELECT * FROM plg_mem_cost WHERE disabled = '0' ORDER BY days ")->results();
                                     foreach($costs as $p){ ?>
-                                    <!-- radio -->
+                                    <!-- Select -->
                                         <input type="radio" name="plan_cst" id="<?=$p->id?>" data-plan="<?=$p->plan?>" value="<?=$p->id?>" required />
                                         <label for="<?=$p->id?>" class="lbl-radio">
                                           <div class="marker"></div>
@@ -908,14 +558,11 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
                                           </div>
                                         </label>
                                     <?php   } ?>
-                                    
-                                  <!--  </select>-->
                                     </div>
                                 </aside>
                             </div>
                         </section>
-                                <input name="paymentOption" required  style="display: none;" id="paymentOption"  value="stripe"/>
-                        
+                        <input name="paymentOption" required  style="display: none;" id="paymentOption"  value="stripe"/>
              </div></div></div>
             </div><!--card-body-->
             <div class="card-footer theme-bg-primary border-0 text-center">
@@ -936,9 +583,7 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
                      <div class="col-md-12">
                               <div class="row  align-items-center">
                                 <div class="col mr-2">
-                                    <br />
-                                    <div class="text-xs  font-weight-bold text-secondary text-uppercase mb-0">Add Payment </div>
-                                    <br />
+                                    <br /> <div class="text-xs  font-weight-bold text-secondary text-uppercase mb-0">Add Payment </div> <br />
                                 </div> 
                               </div>
                     </div>      
@@ -952,32 +597,28 @@ $stripe_price = $db->query("SELECT * FROM plg_mem_cost WHERE id = ?",[$cost])->f
                               </div>
                             </div>
                                 <br />
-                               
-                                 
-                                 <div id="checkout">
+                                <div id="checkout">
                                      <form  action="" method="post" id="payment-form">
-                             
-                                         <section>
+                                        <section>
                                           <fieldset class="with-state">
-                                            
                                              <div class="payment-info">
-                                  <label>
-                                    <span>Card</span>
-                                    <div id="card-element" class="field"></div>
-                                     <div id="card-errors" role="alert"></div>
-                                  </label>
-                              </div>
+                                                <label><span>Card</span>
+                                                
+                                                
+                                                        
+                                                    <div id="card-element" class="field"></div>
+                                                    <div id="card-errors" role="alert"></div>
+                                                </label>
+                                            </div>
                                           </fieldset>
-                                          
-                                              <button type="submit" class="col-sm-12" >Add Payment</button>
-                              
-                                     </section>
-                          </form>
-                                <br /><br />
+                                          <button type="submit" class="col-sm-12" >Add Payment</button>
+                                        </section>
+                                     </form>
+                                    <br /><br />
+                                </div>
                     </div>
-            
+                </div>
             </div>
-            </div></div>
             </div>
             <br />
                 <script>

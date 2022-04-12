@@ -84,7 +84,7 @@ if($check < 1){
 
 $check2 = $db->query("SELECT * FROM plg_mem_stripe")->count();
 if($check < 1){
-	$fields2 = array('stripe_s'=>'sk_live_xxx','stripe_p'=>'pk_live_xxx','stripe_w'=>'whsec_xxx','stripe_currency'=>'usd',);
+	$fields2 = array('stripe_s'=>'sk_xxx','stripe_p'=>'pk_xxx','stripe_w'=>'whsec_xxx','stripe_currency'=>'usd',);
 	$db->insert('plg_mem_stripe',$fields2);
 }
 $db->query("ALTER TABLE plg_mem_settings ADD COLUMN payments tinyint(1) default 0");

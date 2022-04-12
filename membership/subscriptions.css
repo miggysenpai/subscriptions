@@ -1,0 +1,313 @@
+	@import url('https://fonts.googleapis.com/css?family=Raleway&display=swap');
+		:root {
+		  --light-grey: #F6F9FC;
+		  --dark-terminal-color: #0A2540;
+		  --accent-color: #635BFF;
+		  --radius: 3px;
+		}
+		form > * {
+		  margin: 10px 0;
+		}
+		button {
+		  background-color: var(--accent-color);
+		}
+		button {
+		  background: #1bb1dc;
+		  border-radius: 3px;
+		  color: white;
+		  border: 0;
+		  padding: 12px 16px;
+		  margin-top: 16px;
+		  font-weight: 600;
+		  cursor: pointer;
+		  transition: all 0.2s ease;
+		  display: block;
+		}
+		button:hover {
+		  filter: contrast(115%);
+		}
+		button:active {
+		  transform: translateY(0px) scale(0.98);
+		  filter: brightness(0.9);
+		}
+		button:disabled {
+		  opacity: 0.5;
+		  cursor: none;
+		}
+		input,  {
+		  display: block;
+		  font-size: 1.1em;
+		  width: 100%;
+		}
+		.titleCost {
+		  font-weight: 700;
+		  margin-bottom: 15px;
+		  font-size:2em;
+		  color:#555;
+		}
+		#messages {
+		  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New';
+		  display: none; /* hide initially, then show once the first message arrives */
+		  background-color: #0A253C;
+		  color: #00D924;
+		  padding: 20px;
+		  margin: 20px 0;
+		  border-radius: 3px;
+		  font-size:0.7em;
+		}
+        hr {
+            color: #333;
+            overflow: visible;
+            text-align: center;
+            height: 5px;
+            font-size:0.7rem;
+        }
+        .hr hr:after {
+            background: #fff;
+            color: #666;
+            content: 'Pay with Card';
+            padding: 0 4px;
+            position: relative;
+            top: -9px;
+        }
+        /*important stuff here*/
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-text-size-adjust: none;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            font-size: 15px;
+            line-height: 1.4em;
+        }
+                
+        /* Checkout */
+        #checkout {
+            max-width: 480px;
+            margin: 0 auto;
+            transition: visibility 0s, opacity 0.5s linear 0.5s;
+        }
+        #main.checkout #checkout {
+            visibility: visible;
+            opacity: 1;
+        }
+        section {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            text-align: left;
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        h2 {
+            margin: 15px 0;
+            color: #32325d;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+                
+        /* Form */
+                
+        fieldset {
+            margin-bottom: 20px;
+            background: #fff;
+            box-shadow: 0 1px 3px 0 rgba(50, 50, 93, 0.15),
+            0 4px 6px 0 rgba(112, 157, 199, 0.15);
+            border-radius: 4px;
+            border: none;
+            font-size: 0;
+        }
+        fieldset label {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            height: 42px;
+            padding: 10px 0;
+            align-items: center;
+            justify-content: center;
+            color: #8898aa;
+            font-weight: 400;
+        }
+        fieldset label:not(:last-child) {
+            border-bottom: 1px solid #f0f5fa;
+        }
+        fieldset label.state {
+            display: inline-flex;
+            width: 75%;
+        }
+        fieldset:not(.with-state) label.state {
+            display: none;
+        }
+        fieldset label.zip {
+            display: inline-flex;
+            width: 100%;
+        }
+        fieldset:not(.with-state) label.zip {
+            width: 100%;
+        }
+        fieldset label span {
+            min-width: 125px;
+            padding: 0 15px;
+            text-align: right;
+        }
+        fieldset .redirect label span {
+            width: 100%;
+            text-align: center;
+        }
+        .field {
+            flex: 1;
+            padding: 0 15px;
+            background: transparent;
+            font-weight: 400;
+            color: #31325f;
+            outline: none;
+            cursor: text;
+        }
+        .field::-webkit-input-placeholder {
+            color: #aab7c4;
+        }
+        .field::-moz-placeholder {
+            color: #aab7c4;
+        }
+        .field:-ms-input-placeholder {
+            color: #aab7c4;
+        }
+        input {
+            flex: 1;
+            border-style: none;
+            outline: none;
+            color: #313b3f;
+        }
+        ::-webkit-input-placeholder {
+            color: #cfd7e0;
+        }
+        ::-moz-placeholder {
+            color: #cfd7e0;
+            opacity: 1;
+        }
+        :-ms-input-placeholder {
+            color: #cfd7e0;
+        }
+        input:-webkit-autofill,
+        select:-webkit-autofill {
+        -webkit-text-fill-color: #666ee8;
+        transition: background-color 100000000s;
+        -webkit-animation: 1ms void-animation-out 1s;
+        }
+        .StripeElement--webkit-autofill {
+            background: transparent !important;
+        }
+        
+        button {
+            display: block;
+            background: #1bb1dc;
+            color: #fff;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+            border: 0;
+            font-weight: 700;
+            width: 100%;
+            height: 40px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        button:focus {
+            background: #555abf;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 14px 0 rgba(50, 50, 93, 0.1),
+            0 3px 6px 0 rgba(0, 0, 0, 0.08);
+        }
+        button:active {
+            background: #43458b;
+        }
+        .card-number {
+            padding-left: 8px;
+            white-space: nowrap;
+            font-family: Source Code Pro, monospace;
+            color: #0d2b3e;
+            font-weight: 500;
+        }
+        .card-number span {
+            display: inline-block;
+            width: 8px;
+        }
+        #payment-request-button iframe {
+            border-radius: 4px;
+            border: 0;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+        :root {
+            --back: #efeef4;
+            --theme: #666;
+        }
+        .background {
+            display: grid;
+            place-items: center;
+        }
+        .background .paper {
+            width: 400px;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+        }
+        .background .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .background .header-title span {
+            font-weight: 400;
+            opacity: 0.5;
+        }
+        .background  .radio-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px 0;
+        }
+        .background .lbl-radio {
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            padding-left: 50px;
+            position: relative;
+            cursor: pointer;
+        }
+        .background .lbl-radio .content .title {
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+        .background .lbl-radio .content .subtext {
+            opacity: 0.5;
+            font-size: 14px;
+        }
+        .background .marker {
+            width: 15px;
+            height: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            position: absolute;
+            left: 20px;
+            top: 40%;
+        }
+        .background input[type='radio']:checked + .lbl-radio {
+            border-color: var(--theme);
+        }
+        .background input[type='radio']:checked + .lbl-radio > .marker {
+            border: 1px solid var(--theme);
+        }
+        .background input[type='radio'] {
+        	display: none;
+        }
