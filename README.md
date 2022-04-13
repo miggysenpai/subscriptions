@@ -3,9 +3,10 @@ Userspice with stripe API.
 
 To install, please use a fresh copy of userspice. This is the membership plugin that has been modified and update to work with stripe API
 - Drop the membership folder in usersc/plugin 
-- Drop membership.php in usersc/
 - Go to stripe and get your api keys
 - Also, in stripe create a webhook and add an endpoint with the URL of "https://yourdomain.com/usersc/plugins/membership/StripeWebhook.php?webhook=webhook" and to listen to "invoice.payment_succeeded" in event types
+- membership.php should copy to usersc/ on install, but if not, its located in plugins/membership/files.
+  - Drop membership.php in usersc/
 
 membership.php will be the main page where users can...
   - See information about their subscription
