@@ -26,6 +26,7 @@ Future updates will include the following feautures. This will be in the admin p
 - Better listing current stripe subscriptions
 - Better listing on current stripe customers
 - Better listing on current stripe Products/prices
+- Coupons! Using them with the plugin
 
 
 Also, I will clean up the code a little, its a bit messy. 
