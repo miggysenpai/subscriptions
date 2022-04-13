@@ -11,6 +11,15 @@ include "plugin_info.php";
 //you will probably be doing more than removing the item from the db
 
 $db->query("DELETE FROM us_plugins WHERE plugin = ?",array($plugin_name));
+//delete all from DB
+$db->query("DROP TABLE `plg_mem_cost`, `plg_mem_plans`, `plg_mem_settings`, `plg_mem_stripe`, `plg_mem_stripe_custID`");
+
+//delete membership.php in usersc/
+$membeship_php = $abs_us_root.$us_url_root.'usersc/membership.php';
+if (file_exists($membeship_php)) {
+    unlink($membeship_php);
+}
+
 deRegisterHooks($plugin_name);
 if(!$db->error()) {
     err($plugin_name.' uninstalled');

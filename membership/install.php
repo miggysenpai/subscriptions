@@ -75,6 +75,22 @@ $db->query("CREATE TABLE `plg_mem_stripe_custID` (
 
 
 
+$usersc_dir = "{$abs_us_root}{$us_url_root}usersc/";
+$plugin_dir = "{$abs_us_root}{$us_url_root}usersc/plugins/{$plugin_name}/files/";
+$files = array_diff(scandir($plugin_dir), ['..', '.']);
+foreach ($files as $file) {
+  $file_source_path = "{$plugin_dir}{$file}";
+  $file_dest_path = "{$usersc_dir}{$file}";
+  if (copy($file_source_path, $file_dest_path)) {
+      logger($user->data()->id, 'Subscriptions', "[INSTALL] [FILES] [SUCCESS] Copied {$file}");
+  } else {
+      logger($user->data()->id, 'Subscriptions', "[INSTALL] [FILES] [ERROR] Failed to Copy {$file}");
+  }
+}
+
+
+
+
 
 $check = $db->query("SELECT * FROM plg_mem_settings")->count();
 if($check < 1){
