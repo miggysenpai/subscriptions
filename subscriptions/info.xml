@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+  <name>Subscription Plugin</name>
+  <author>Dan Hoover, Miggy Senpai</author>
+<!-- Feel free to include your github repo here -->
+  <website>https://www.userspice.com</website>
+
+<!-- the version of the plugin iteself -->
+  <version>1.0.4</version>
+
+<!-- release date of THIS version -->
+  <release>April 28, 2022</release>
+
+<!-- the last version of UserSpice you tested the plugin with -->
+  <tested>5.4</tested>
+
+<!-- What does your plugin do? -->
+  <description>A modified version of the membership plugin, created with stripe API. NO NEED to install the stripe plugin. 
+    This version comes reccuring payments! Set up is almost identical to the membership plugin.</description>
+
+  <!-- This is the launch button in the plugin manager. If it is blank or missing, Configure Plugin will show up. -->
+    <button>Subscriptions</button>
+</plugin>
