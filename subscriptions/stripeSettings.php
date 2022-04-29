@@ -65,7 +65,7 @@ $stripe_page = Input::get('page');
 		    </div>
 			<div class="col-sm-12">
 			  
-			  <?
+			  <?php
 			  //Stripe Subscription
 			  if($stripe_page == "subscriptions"){
 			  $sub_stripe = $stripe->subscriptions->all([]);
@@ -83,7 +83,7 @@ $stripe_page = Input::get('page');
                         </tr>
                       </thead>   
                     <tbody>
-                     <?
+                     <?php
                     foreach ($sub_stripe as $sub) {
                             echo "
                              <tr>
@@ -97,10 +97,10 @@ $stripe_page = Input::get('page');
                      ?>
                     </tbody>
                  </table>
-			  <?}?>   
+			  <?php }?>   
 			  
 			  
-			  <?
+			  <?php
 			  //Stripe Products
 			  if($stripe_page == "products"){
 			  $price_stripe = $stripe->prices->all([]);
@@ -117,7 +117,7 @@ $stripe_page = Input::get('page');
                         </tr>
                       </thead>   
                     <tbody>
-                     <?
+                     <?php
                     foreach ($price_stripe as $prc) {
                         $priceDecimal = $prc->unit_amount/pow(10,2);
                             echo "
@@ -135,10 +135,10 @@ $stripe_page = Input::get('page');
                      ?>
                     </tbody>
                  </table>
-			  <?}?> 
+			  <?php }?> 
 			  
 			  
-			  <?
+			  <?php 
 			  //Stripe Customers
 			  if($stripe_page == "customers"){
 			  $customer_stripe = $stripe->customers->all([]);
@@ -155,7 +155,7 @@ $stripe_page = Input::get('page');
                             </tr>
                           </thead>   
                         <tbody>
-                         <?
+                         <?php 
                         foreach ($customer_stripe as $cust) {
                                 echo "
                                 
@@ -170,10 +170,10 @@ $stripe_page = Input::get('page');
                          ?>
                         </tbody>
                     </table>
-			  <?}?> 
+			  <?php }?> 
 			  
 			  
-			  <?
+			  <?php
 			  //Stripe Transactions
 			  if($stripe_page == "transactions"){
 			  $transactions_stripe = $stripe->charges->all([]);
@@ -192,7 +192,7 @@ $stripe_page = Input::get('page');
                             </tr>
                           </thead>   
                         <tbody>
-                         <?
+                         <?php
                         foreach ($transactions_stripe as $trans) {
                                 echo "
                                  <tr>
@@ -214,10 +214,10 @@ $stripe_page = Input::get('page');
                          ?>
                         </tbody>
                     </table>
-			  <?}?> 
+			  <?php }?> 
 			  
 			  
-			  <?
+			  <?php 
 			  //Stripe Transactions
 			  if($stripe_page == "payouts"){
 			  $payouts_stripe = $stripe->payouts->all([]);
@@ -236,7 +236,7 @@ $stripe_page = Input::get('page');
                             </tr>
                           </thead>   
                         <tbody>
-                         <?
+                         <?php
                         foreach ($payouts_stripe as $pay) {
                                 $epochDate = date("m-d-Y", substr($pay->created, 0, 10));
                                 echo "
@@ -253,10 +253,10 @@ $stripe_page = Input::get('page');
                          ?>
                         </tbody>
                     </table>
-			  <?}?>
+			  <?php }?>
 			  
 			  
-			  <?
+			  <?php
 			  //Stripe Transactions
 			  if($stripe_page == "refunds"){
 			  $refunds_stripe = $stripe->refunds->all([]);
@@ -274,7 +274,7 @@ $stripe_page = Input::get('page');
                             </tr>
                           </thead>   
                         <tbody>
-                         <?
+                         <?php 
                         foreach ($refunds_stripe as $refund) {
                                 echo "
                                  <tr>
@@ -288,10 +288,10 @@ $stripe_page = Input::get('page');
                          ?>
                         </tbody>
                     </table>
-			  <?}?> 
+			  <?php }?> 
 			  
 			  
-			  <?
+			  <?php 
 			  //Stripe Refunds Confirm
 			  if($stripe_page == "refundsConfirm"){
 			    $stripe_charge = Input::get('charge');
@@ -335,10 +335,10 @@ $stripe_page = Input::get('page');
                         </div>
                                                
                       </section>
-			  <?}?>
+			  <?php }?>
 			  
 			  
-			  <?
+			  <?php 
 			  //Stripe Refunds Confirm POST
 			  if($stripe_page == "refundsConfirm" && $_POST){
 			    $stripe_charge = Input::get('charge');
@@ -368,12 +368,12 @@ $stripe_page = Input::get('page');
                           </div>
                         </div>                
                       </section>
-			    <?
+			    <?php
 			    header( "refresh:5;url=?page=refunds" );
 			    }?>
 			    
 			    
-			    <?
+			    <?php
     			//Stripe Coupons
     			if($stripe_page == "coupons"){
     			$coupons_stripe = $stripe->coupons->all([]);
@@ -404,7 +404,7 @@ $stripe_page = Input::get('page');
                             </tr>
                           </thead>   
                         <tbody>
-                         <?
+                         <?php
                             foreach ($coupons_stripe as $coupon) {
                                     echo "
                                      <tr>
@@ -419,10 +419,10 @@ $stripe_page = Input::get('page');
                               ?>
                           </tbody>
                        </table>
-			    <?}?>
+			    <?php }?>
 			    
 			    
-			    <?
+			    <?php
     			  //Stripe Coupon On/Off
     			  if($stripe_page == "couponsOnOff"){
     			      if($keys->stripe_coupons == true){
@@ -468,10 +468,10 @@ $stripe_page = Input::get('page');
                             </div>
                                                    
                           </section>
-    			<?}?>
+    			<?php }?>
     			
     			
-    			<?
+    			<?php
     			  //Stripe Coupons On/Off POST
     			  if($stripe_page == "couponsOnOffPOST" && $_POST){
     			      $stripe_coupon = Input::get('stripe_coupon');
@@ -506,13 +506,13 @@ $stripe_page = Input::get('page');
                           </div>
                         </div>                
                       </section>
-			    <?
+			    <?php
 			    header( "refresh:5;url=?page=coupons" );
 			    }?>
 			    
 			    
 			    
-			    <?
+			    <?php
     			  //Stripe Coupons ADD
     			  if($stripe_page == "couponsADD"){
     			    ?>
@@ -616,10 +616,10 @@ $stripe_page = Input::get('page');
                             </div>
                                                    
                           </section>
-    			  <?}?>
+    			  <?php }?>
     			  
     			  
-    			   <?
+    			   <?php
     			  //Stripe Refunds Confirm POST
     			  if($stripe_page == "couponsADDPOST" && $_POST){
     			    $stripe_id = Input::get('id');
@@ -689,12 +689,12 @@ $stripe_page = Input::get('page');
                           </div>
                         </div>                
                       </section>
-			    <?
+			    <?php
 			    header( "refresh:5;url=?page=coupons" );
 			    }?>
 			    
 			    
-			    <?
+			    <?php
     			  //Stripe Coupon View
     			  if($stripe_page == "couponView"){
     			      $stripe_coupon = Input::get('coupon');
@@ -734,7 +734,7 @@ $stripe_page = Input::get('page');
                                               <td>Created</td>
                                               <td><?=$couponCreated?></td>
                                             </tr>
-                                            <?if(isset($coupon->amount_off)){
+                                            <?php if(isset($coupon->amount_off)){
                                                 echo "
                                                 <tr>
                                                   <td>Amount Off</td>
@@ -755,7 +755,7 @@ $stripe_page = Input::get('page');
                                               <td>Duration</td>
                                               <td class="text-capitalize"><?=$coupon->duration?></td>
                                             </tr>
-                                            <?if(isset($coupon->duration_in_months)){
+                                            <?php if(isset($coupon->duration_in_months)){
                                                 echo "
                                                 <tr>
                                                   <td>Duration in months</td>
@@ -814,10 +814,10 @@ $stripe_page = Input::get('page');
                             </div>
                                                    
                           </section>
-    			  <?}?>
+    			  <?php }?>
     			  
     			  
-    			  <?
+    			  <?php
 			  //Stripe Coupon Delete Confirm
 			  if($stripe_page == "couponDelete"){
 			    $stripe_coupon = Input::get('coupon');
@@ -862,10 +862,10 @@ $stripe_page = Input::get('page');
                         </div>
                                                
                       </section>
-			  <?}?>
+			  <?php }?>
 			  
 			  
-			  <?
+			  <?php
 			  //Stripe Coupon Deltete POST
 			  if($stripe_page == "couponDelete" && $_POST){
 			    $stripe_coupon = Input::get('coupon');
@@ -895,12 +895,12 @@ $stripe_page = Input::get('page');
                           </div>
                         </div>                
                       </section>
-			    <?
+			    <?php
 			    header( "refresh:5;url=?page=coupons" );
 			    }?>
 			    
 			    
-			     <?
+			     <?php
 			  //Stripe Coupon Deltete POST
 			  if($stripe_page == "invoices"){
 			     $invoiceLoop =  $stripe->invoices->all([]);
@@ -913,7 +913,7 @@ $stripe_page = Input::get('page');
                             <h6>Invoices</h6>
                             <table class='table '>
                              <thead> 
-                                <? 
+                                <?php 
                                 foreach ($invoiceLoop as $rslt) {
                                     $epoch = $rslt->lines->data[0]->period->start;
                                     $dt = new DateTime("@$epoch");  // convert UNIX timestamp to PHP DateTime
@@ -933,7 +933,7 @@ $stripe_page = Input::get('page');
                         </div>
                         </div>                
                       </section>
-			    <?
+			    <?php
 			   
 			    }?>
 			        

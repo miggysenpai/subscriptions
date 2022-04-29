@@ -50,7 +50,7 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
 
                     
 // ****** SUBSCRIPTION MADE, PROCCESSING CODE
-    if(!empty($_POST && $subscriptionChange == "subscription" && $opt == "process" )){
+	if(!empty($_POST && $subscriptionChange == "subscription" && $opt == "process" )){
             // Setting important variables
             $name = $_POST['cname'];
             $email = $userdetails->email; // User email
@@ -109,59 +109,57 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
             }else {
                 echo ' problema sir';
             }
-    }// Closing tag
-    
+	}// Closing tag
+	
 
 // ******* CHECKOUT CODE
-    if(!empty($_POST && $subscriptionChange == "subscription" && $opt == "checkout" )){
-           $po = Input::get('paymentOption');
-           if($status == "Active" && $plan != $user->data()->plg_sub_level){
-                 Redirect::to('account.php?change=subscription&err=Only+an+admin+can+change+your+plan');
-           } 
-           $cost = Input::get('plan_cst');
-           $check1 = $db->query("SELECT * FROM plg_sub_plans WHERE disabled = 0 AND id = ?",[$plan])->count();
-               $check2Q = $db->query("SELECT * FROM plg_sub_cost WHERE id = ? AND plan = ? AND disabled = 0",[$cost,$plan]);
-           $check2C = $check2Q->count();
-        
-           if($check1 < 1 || $check2C < 1){
-            Redirect::to('account.php?change=subscription&err=Invalid+plan+selected');
-           }
-        
-           $check2 = $check2Q->first();
-           $check3Q = $db->query("SELECT * FROM plg_sub_plans WHERE disabled = 0 AND id = ?",[$plan]); 
-           $check3 = $check3Q->first();
-           $pass = true;
-    }// Closing tag
-    
-    
+	if(!empty($_POST && $subscriptionChange == "subscription" && $opt == "checkout" )){
+		   $po = Input::get('paymentOption');
+		   if($status == "Active" && $plan != $user->data()->plg_sub_level){
+		         Redirect::to('account.php?change=subscription&err=Only+an+admin+can+change+your+plan');
+		   } 
+		   $cost = Input::get('plan_cst');
+		   $check1 = $db->query("SELECT * FROM plg_sub_plans WHERE disabled = 0 AND id = ?",[$plan])->count();
+	           $check2Q = $db->query("SELECT * FROM plg_sub_cost WHERE id = ? AND plan = ? AND disabled = 0",[$cost,$plan]);
+		   $check2C = $check2Q->count();
+		
+		   if($check1 < 1 || $check2C < 1){
+			Redirect::to('account.php?change=subscription&err=Invalid+plan+selected');
+		   }
+		
+		   $check2 = $check2Q->first();
+		   $check3Q = $db->query("SELECT * FROM plg_sub_plans WHERE disabled = 0 AND id = ?",[$plan]); 
+		   $check3 = $check3Q->first();
+		   $pass = true;
+	}// Closing tag
+	
+	
 // ****** SUBSCRIPTION CANCELLED ;c
-        if($subChange == "unsubscribe"){
-            $subscription = $stripe->subscriptions->retrieve($stripe_sub,[]);
-                // Checks if sub is active, then cancel it
-                if($subscription->status == "active"){
-                    $stripe->subscriptions->cancel($stripe_sub,[]);
-                header("Location: subscription.php?&display=success&stripemsg=subcanceled");
-                }else{
-                    header("Location: subscription.php");
-                }
-        }// Closing tag
-        
-        
-// ******  SUBSCRIPTION UPDATED 
-        if($subChange == "updateProcess" && $_POST){
-            $plan = Input::get('plan');
-            $cost = Input::get('plan_cst');
-            $stripe_coupon = $_POST['stripe_coupon']; // If coupon available
-            $costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
-            $subscription = $stripe->subscriptions->retrieve($stripe_sub);
-            
-                if($subscription->status == "active"){
-              // cancel current subscription      
-                $cancel_sub = $stripe->subscriptions->cancel($stripe_sub);
-                
-              // Prepare arrays for subscriptions
-              $subscriptionArray = [
-                 'customer' => $stripe_customer,
+     	if($subChange == "unsubscribe"){
+     	    $subscription = $stripe->subscriptions->retrieve($stripe_sub,[]);
+     	        // Checks if sub is active, then cancel it
+         	    if($subscription->status == "active"){
+         	        $stripe->subscriptions->cancel($stripe_sub,[]);
+         	    header("Location: subscription.php?&display=success&stripemsg=subcanceled");
+            	}else{
+            	    header("Location: subscription.php");
+            	}
+     	}// Closing tag
+     	
+     	
+// ******  SUBSCRIPTION UPDATED	
+     	if($subChange == "updateProcess" && $_POST){
+     	    $plan = Input::get('plan');
+     	    $cost = Input::get('plan_cst');
+     	    $costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
+     	    $subscription = $stripe->subscriptions->retrieve($stripe_sub);
+     	    
+         	    if($subscription->status == "active"){
+         	  // cancel current subscription      
+         	    $cancel_sub = $stripe->subscriptions->cancel($stripe_sub);
+         	  //create new subscription
+         	    $subscription = $stripe->subscriptions->create([
+                    'customer' => $stripe_customer,
                     'items' =>[
                         ['price' => $costs->stripe_price_id, ]
                       ],
@@ -174,30 +172,13 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
                             'exp' => $user->data()->plg_sub_exp,
                             'change' =>$user->data()->plg_sub_level,
                             'via' => 'stripe',
-                          ] 
-                  ];
-                  
-                 // Check if coupon setting is enabled
-                if($keys->stripe_coupons == true){
-                    $subscriptionsArrayCoupon = [
-                        'coupon' => $stripe_coupon,
-                    ];
-                } 
-                else {
-                    $subscriptionsArrayCoupon= [];
-                }
-              
-              $subscriptionArrays = $subscriptionArray + $subscriptionsArrayCoupon;    
-              
-              //create new subscription
-                $subscription = $stripe->subscriptions->create([
-                    $subscriptionArrays
+                          ]
                     ]);
-                 header("Location: subscription.php?&display=success&stripemsg=subupdated");
-                }
-                if($subscription->status == "canceled"){
-              //create new subscription
-                $subscription = $stripe->subscriptions->create([
+         	     header("Location: subscription.php?&display=success&stripemsg=subupdated");
+         	    }
+         	    if($subscription->status == "canceled"){
+         	  //create new subscription
+         	    $subscription = $stripe->subscriptions->create([
                     'customer' => $stripe_customer,
                     'items' =>[
                         ['price' => $costs->stripe_price_id, ]
@@ -214,29 +195,29 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
                           ]
                     ]);
                     header("Location: subscription.php?&display=success&stripemsg=subupdated");
-                }
-        } // Closing tag
-        
-        
-// ******  ADD A PAYMENT        
-        if($getPayment == "add" && $_POST){
+         	    }
+     	} // Closing tag
+     	
+     	
+// ******  ADD A PAYMENT     	
+     	if($getPayment == "add" && $_POST){
             $token = $_POST['stripeToken'];
             $stripe->customers->createSource($stripe_customer,['source' => $token]);
             header("location: subscription.php?&display=success&stripemsg=paymentadded"); 
-        } // Closing tag
-        
-        
-// ******  SET DEFAULT PAYMENT  
+     	} // Closing tag
+     	
+     	
+// ******  SET DEFAULT PAYMENT	
         if($getPayment == "setDefault"){
-            $stripe->customers->update($stripe_customer,['default_source' => (Input::get('id')) ]);
+     	    $stripe->customers->update($stripe_customer,['default_source' => (Input::get('id')) ]);
             header("location: subscription.php?&display=success&stripemsg=paymentdefault"); 
-        } // Closing tag
-        
-// ******  DELETE CARD  
+     	} // Closing tag
+     	
+// ******  DELETE CARD	
         if($getPayment == "delete"){
-            $stripe->customers->deleteSource($stripe_customer,(Input::get('id')),[]);
+     	    $stripe->customers->deleteSource($stripe_customer,(Input::get('id')),[]);
             header("location: subscription.php?&display=success&stripemsg=paymentdeleted");
-        }
+     	}
     
 ?>
 
@@ -253,7 +234,7 @@ $msgOutput = Input::get('stripemsg');
     <br /> <br />
     <div class="card mb-4 py-3 border-bottom-success text-center">
         <div class="card-body">
-            <? 
+            <?php 
             if($msgOutput =="subcomplete"){
                 echo "Payment was successful! Enjoy".$settings->site_name."!<br /><br /> The receipt was send to".$userdetails->email;
             }
@@ -265,7 +246,7 @@ $msgOutput = Input::get('stripemsg');
             }
             if($msgOutput =="paymentadded"){
                 echo "Payment was added successfully!<br /><br /> You can use that payment for future subscriptions!";
-            }               
+            }       	    
             if($msgOutput =="paymentdefault"){
                 echo  "Default payment was updated successfully!<br /><br /> This payment will be used for future subscriptions!";
             }
@@ -324,7 +305,7 @@ if($subscriptionChange == "subscription" && !$pass && $getCoupon == ""){ ?>
                     </section>
                 </div>  
                     <div class="form-group text-center">
-                        <?// select the pricing ?>
+                        <?php // select the pricing ?>
                         <section class="background">
                             <div class="paper">
                               <header class="header-title">Choose service <span>Subscription</span></header>
@@ -404,13 +385,13 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                             <input type="hidden" name="plan_cst" value="<?=$cost?>">
                             <input type="hidden" name="plan" value="<?=$plan?>">
                             <input type="hidden" name="paymentOption" value="<?=$po?>">   
-                            <? //stripe code below required for checkout /?>
+                            <?php //stripe code below required for checkout /?>
                             <label>
                                 <span>Card</span>
                                 <div id="card-element" class="field"></div>
                                 <div id="card-errors" role="alert"></div>
                             </label>
-                            <?
+                            <?php
                             if($keys->stripe_coupons == true){ echo
                                 "<label>
                                 <span>Coupon</span>
@@ -421,7 +402,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                             ?>
                         </div>
                     </fieldset>
-                    <?
+                    <?php
                     if($keys->stripe_coupons == true){ echo
                         "<button id='coupon-button' class='col-sm-12' >Apply Coupon</button>
                          <center><h2 id='error-label' /></center>
@@ -558,7 +539,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
         errorLabel.innerHTML = text;
     }
   </script>
-<?    } }//end tag  ?>
+<?php    } }//end tag  ?>
 
 
 <?php 
@@ -619,7 +600,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             <div class='col-md-6'>
             <table class="table table-borderless">
                 <tbody>
-                 <?
+                 <?php
                  // Remove to view JSON LIST ARRAY 
                  // print("<pre>".print_r($cardLoop,true)."</pre>");
                 foreach ($cardLoop as $card) {
@@ -647,7 +628,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 <h6>Invoices</h6>
                 <table class='table '>
                  <thead> 
-                    <? 
+                    <?php 
                     // Remove to view JSON LIST ARRAY 
                     // print("<pre>".print_r($invoiceLoop,true)."</pre>");
                     foreach ($invoiceLoop as $rslt) {
@@ -668,7 +649,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 </table>
                     
             </div>
-            <?} else { 
+            <?php } else { 
                 //take them to create a subscription and a customer id with stripe.
                 header("Location: subscription.php?change=subscription"); }
         }
@@ -677,25 +658,25 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
 // ****** CANCEL SUBSCRIPTION
         if($subscriptionChange == "" && $opt == "" &&  $subChange == "unsubscribeConfirm"  && $getCoupon == ""){
         $plan = $user->data()->plg_sub_level;
-        $cost = $user->data()->plg_sub_cost;
-        $costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
-        $plans = $db->query("SELECT * FROM plg_sub_plans WHERE id = ?",[$plan])->first();
-        if($costs->stripe_reccuring == "Every 1 month"){
-            $recurring = "Monthly";
-        }
-        if($costs->stripe_reccuring == "Every 3 month"){
-            $recurring = "Every 3 Months";
-        }
-        if($costs->stripe_reccuring == "Every 6 month"){
-            $recurring = "Every 6 Months";
-        }
-        if($costs->stripe_reccuring == "Every 1 year"){
-            $recurring = "Annually";
-        }
-        
-        $default_payment = $stripe->customers->retrieve($stripe_customer,[]);
-        $default_card = $stripe->customers->retrieveSource($stripe_customer, $default_payment->default_source,[]);
-        //echo "<pre>".$default_card."<pre>";
+     	$cost = $user->data()->plg_sub_cost;
+     	$costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
+     	$plans = $db->query("SELECT * FROM plg_sub_plans WHERE id = ?",[$plan])->first();
+     	if($costs->stripe_reccuring == "Every 1 month"){
+     	    $recurring = "Monthly";
+     	}
+     	if($costs->stripe_reccuring == "Every 3 month"){
+     	    $recurring = "Every 3 Months";
+     	}
+     	if($costs->stripe_reccuring == "Every 6 month"){
+     	    $recurring = "Every 6 Months";
+     	}
+     	if($costs->stripe_reccuring == "Every 1 year"){
+     	    $recurring = "Annually";
+     	}
+     	
+     	$default_payment = $stripe->customers->retrieve($stripe_customer,[]);
+     	$default_card = $stripe->customers->retrieveSource($stripe_customer, $default_payment->default_source,[]);
+     	//echo "<pre>".$default_card."<pre>";
         ?>
         <div class="container">
             <div class="row"><div class="col"></div>
@@ -742,7 +723,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
         </div>
           
         
-        <?}
+        <?php }
 
 // ****** UPDATE SUBSCRIPTION
         if($subscriptionChange == "" && $opt == "" &&  $subChange == "update"  && $getCoupon == ""){?>
@@ -775,7 +756,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 </div>  
                 
                 <div class="form-group text-center">
-                    <?// select the pricing ?>
+                    <?php // select the pricing ?>
                         <section class="background">
                             <div class="paper">
                               <header class="header-title">Choose service <span>Subscription</span></header>
@@ -792,19 +773,19 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                                           <div class="content">
                                             <div class="title"><?=$p->descrip?></div>
                                             <div class="subtext"><?=$subset->sym?><?=$p->cost?> 
-                                                <?
+                                                <?php
                                                     if($p->stripe_reccuring == "Every 1 month"){
-                                                        echo "Monthly";
-                                                    }
-                                                    if($p->stripe_reccuring == "Every 3 month"){
-                                                        echo "Every 3 Months";
-                                                    }
-                                                    if($p->stripe_reccuring == "Every 6 month"){
-                                                        echo "Every 6 Months";
-                                                    }
-                                                    if($p->stripe_reccuring == "Every 1 year"){
-                                                        echo  "Annually";
-                                                    }
+                                                 	    echo "Monthly";
+                                                 	}
+                                                 	if($p->stripe_reccuring == "Every 3 month"){
+                                                 	    echo "Every 3 Months";
+                                                 	}
+                                                 	if($p->stripe_reccuring == "Every 6 month"){
+                                                 	    echo "Every 6 Months";
+                                                 	}
+                                                 	if($p->stripe_reccuring == "Every 1 year"){
+                                                 	    echo  "Annually";
+                                                 	}
                                                 ?>
                                             </div>
                                           </div>
@@ -822,31 +803,31 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             <div class="col"></div>
             </div>
             </div>
-        <?
+        <?php
         }
         
         // ****** UPDATE PREVIEW SUBSCRIPTION
         if($subscriptionChange == "" && $opt == "" &&  $subChange == "updateConfirm"  && $getCoupon == ""){
         $plan = Input::get('plan');
-        $cost = Input::get('plan_cst');
-        $costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
-        $plans = $db->query("SELECT * FROM plg_sub_plans WHERE id = ?",[$plan])->first();
-        if($costs->stripe_reccuring == "Every 1 month"){
-            $recurring = "Monthly";
-        }
-        if($costs->stripe_reccuring == "Every 3 month"){
-            $recurring = "Every 3 Months";
-        }
-        if($costs->stripe_reccuring == "Every 6 month"){
-            $recurring = "Every 6 Months";
-        }
-        if($costs->stripe_reccuring == "Every 1 year"){
-            $recurring = "Annually";
-        }
-        
-        $default_payment = $stripe->customers->retrieve($stripe_customer,[]);
-        $default_card = $stripe->customers->retrieveSource($stripe_customer, $default_payment->default_source,[]);
-        //echo "<pre>".$default_card."<pre>";
+     	$cost = Input::get('plan_cst');
+     	$costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
+     	$plans = $db->query("SELECT * FROM plg_sub_plans WHERE id = ?",[$plan])->first();
+     	if($costs->stripe_reccuring == "Every 1 month"){
+     	    $recurring = "Monthly";
+     	}
+     	if($costs->stripe_reccuring == "Every 3 month"){
+     	    $recurring = "Every 3 Months";
+     	}
+     	if($costs->stripe_reccuring == "Every 6 month"){
+     	    $recurring = "Every 6 Months";
+     	}
+     	if($costs->stripe_reccuring == "Every 1 year"){
+     	    $recurring = "Annually";
+     	}
+     	
+     	$default_payment = $stripe->customers->retrieve($stripe_customer,[]);
+     	$default_card = $stripe->customers->retrieveSource($stripe_customer, $default_payment->default_source,[]);
+     	//echo "<pre>".$default_card."<pre>";
         ?>
         <div class="container">
             <div class="row"><div class="col"></div>
@@ -861,34 +842,17 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                         <section class="background">
                             <div class="paper">
                                 <header class="header-title">Checkout</header>
-                                  <aside class="radio-container">
+                                  <aside class="radio-container"> 
                                             <label for="" class="lbl-radio">
                                               <div class="content">
                                                 <div class="title text-left"><?=$plans->plan_name?></div>
                                                 <p class="text-left">Tier : <?=$costs->descrip?></p>
                                                 <p class="text-left">Reccuring : <?=$recurring?></p>
-                                                <p class="text-left">Price : $<span id="cost_total"><?=$costs->cost?></span></p>
+                                                <p class="text-left">Price : $<?=$costs->cost?></p>
                                               </div>
                                             </label>
                                     </aside>
-                                    <?
-                                        if($keys->stripe_coupons == true){ 
-                                            echo
-                                            "<aside class='radio-container'>
-                                                <label for='' class='lbl-radio'>
-                                                  <div class='content'>
-                                                    <div class='title text-left'>Coupon</div>
-                                                    <p class='text-left'>
-                                                    <input id='coupon-input' type='text' placeholder='Coupon' class='form-control'  >
-                                                    <input id='stripe_coupon' name='stripe_coupon' type='hidden' class='field' name='stripe_coupon'></p> 
-                                                    <button id='coupon-button' class='col-sm-12 btn btn-primary' >Apply Coupon</button>
-                                                     <center><h2 id='error-label' /></center>
-                                                  </div>
-                                                </label>
-                                            </aside>
-                                            ";
-                                        } 
-                                    ?>
+                            
                                     <aside class="radio-container">
                                             <label for="" class="lbl-radio">
                                               <div class="content">
@@ -907,7 +871,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                                               </div>
                                             </label>
                                     </aside>
-                                    <header class="header-title text-right"> <span>Due today : <span id="cost_total2">$<?=$costs->cost?></span></span></header>
+                                    <header class="header-title text-right"> <span>Due today : $<?=$costs->cost?></span></header>
                                     <br />
                                 <input type="submit" value="Change Plan" id="subBtn" class="btn  btn-primary">
                             </div>
@@ -920,59 +884,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             </div><div class="col"></div>
             </div>
         </div>
-                <?if($keys->stripe_coupons == true){ 
-                echo "
-                <script>
-                    var couponInput = document.getElementById('coupon-input');
-                    var couponButton = document.getElementById('coupon-button');
-                    var errorLabel = document.getElementById('error-label');
-                    var costTotal = document.getElementById('cost_total');
-                    var costTotal2 = document.getElementById('cost_total2');
-                    
-                    couponButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    fetch('".$us_url_root."usersc/plugins/subscriptions/couponCheck.php', {
-                      method: 'POST',
-                      
-                      body: JSON.stringify({
-                        coupon: couponInput.value,
-                        price_id : '".$costs->stripe_price_id."',
-                      })
-                    })
-                    .then(response => {  return response.json();})
-                    .then((data) => {
-                      if(data.is_valid) {
-                        // Coupon applied  
-                        displayLabelCoupon('Coupon applied!');
-                        // Update coupon for checkout
-                        document.getElementById('stripe_coupon').value = (data.id);
-                        var costPre = '".$costs->cost."';
-                        var discount = (data.percent_off);
-                        var afterDiscount = (costPre - (costPre * (discount/100))).toFixed(2);
-                        displayLabelCost(afterDiscount);
-                      }
-                      
-                      else {
-                        displayLabelCoupon('Invalid coupon, try again');
-                      }
-                        })
-                      })
-                      
-                      function displayLabelCoupon(text) {
-                            console.log(text);
-                            errorLabel.innerHTML = text;
-                        }
-                        
-                      function displayLabelCost(text) {
-                            console.log(text);
-                            costTotal.innerHTML = text;
-                            costTotal2.innerHTML = text;
-                        }
-                </script>
-                ";
-                
-                }
+        <?php
         }
         
         
@@ -1079,7 +991,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 }
               </script>
             
-            <?
+            <?php
     }        
 ?>
 <!-- footers -->

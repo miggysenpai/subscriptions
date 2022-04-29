@@ -1,4 +1,4 @@
-f<?php if(!in_array($user->data()->id,$master_account)){ Redirect::to($us_url_root.'users/admin.php');} //only allow master accounts to manage plugins! ?>
+<?php if(!in_array($user->data()->id,$master_account)){ Redirect::to($us_url_root.'users/admin.php');} //only allow master accounts to manage plugins! ?>
 
 <?php
 include "plugin_info.php";
@@ -128,7 +128,7 @@ $db->update('plg_sub_settings',1,$fields);
   
     <div class="col-12">
       <a href="<?=$us_url_root?>users/admin.php?view=plugins">Return to the Plugin Manager</a>
-      <?
+      <?php
       $keys = $db->query("SELECT * FROM `plg_sub_stripe`")->first(); 
       if($keys->stripe_s  == "sk_xxx" && $keys->stripe_p == "pk_xxx" ){
       
@@ -147,7 +147,7 @@ $db->update('plg_sub_settings',1,$fields);
               <button type="button" onclick="window.location.href = '<?=$us_url_root?>usersc/plugins/subscriptions/stripeOptions.php';" 
                       name="button" class="btn btn-success">Add Keys</button>
             </div>
-      <?}
+      <?php }
       ?>
       <h2>Configure Subscription Levels
         <button type="button" onclick="window.location.href = '<?=$us_url_root?>usersc/plugins/subscriptions/manage_members.php';" name="button" class="btn btn-primary">Manage Members</button>
@@ -274,7 +274,7 @@ $db->update('plg_sub_settings',1,$fields);
               <input class="form-control" type="number" name="days" value="" min="1" step="1" placeholder="30" required>
             </div>
                
-            <?/* 
+            <?php /* 
             intervals can be added. 
             recurring.interval_count
             The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every

@@ -76,7 +76,7 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
     
     
         
-    <?}
+    <?php }
 ?>
 
 
