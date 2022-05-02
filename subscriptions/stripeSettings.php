@@ -380,8 +380,8 @@ $stripe_page = Input::get('page');
     			// Remove to view JSON LIST ARRAY   
     			// print("<pre>".print_r($coupons_stripe,true)."</pre>");
                     if($keys->stripe_coupons == true){
-                        $text_code = 'danger';                          
-                    } else { $text_code = 'success'; }
+                        $text_code = 'success';                          
+                    } else { $text_code = 'danger'; }
                                 
 			    ?>
 			    <br />
@@ -426,8 +426,8 @@ $stripe_page = Input::get('page');
     			  //Stripe Coupon On/Off
     			  if($stripe_page == "couponsOnOff"){
     			      if($keys->stripe_coupons == true){
-                        $text_code = 'danger'; $text_code1 = 'checked'; $text_code2 = '';
-                    } else { $text_code = 'success'; $text_code2 = 'checked'; $text_code1 = '';}
+                        $text_code = 'success'; $text_code1 = 'checked'; $text_code2 = '';
+                    } else { $text_code = 'danger'; $text_code2 = 'checked'; $text_code1 = '';}
     			      
     			    ?>
     			    <br />

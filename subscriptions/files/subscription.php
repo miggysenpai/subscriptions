@@ -52,7 +52,7 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
 // ****** SUBSCRIPTION MADE, PROCCESSING CODE
 	if(!empty($_POST && $subscriptionChange == "subscription" && $opt == "process" )){
             // Setting important variables
-            $name = $_POST['cname'];
+            $name = $userdetails->fname; // User name
             $email = $userdetails->email; // User email
             $token = $_POST['stripeToken']; // Payment source
             $stripe_price = $_POST['stripe_price']; // Price id
@@ -151,15 +151,17 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
      	if($subChange == "updateProcess" && $_POST){
      	    $plan = Input::get('plan');
      	    $cost = Input::get('plan_cst');
+     	    $stripe_coupon = $_POST['stripe_coupon']; // If coupon available
      	    $costs = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
      	    $subscription = $stripe->subscriptions->retrieve($stripe_sub);
      	    
          	    if($subscription->status == "active"){
          	  // cancel current subscription      
          	    $cancel_sub = $stripe->subscriptions->cancel($stripe_sub);
-         	  //create new subscription
-         	    $subscription = $stripe->subscriptions->create([
-                    'customer' => $stripe_customer,
+         	    
+         	  // Prepare arrays for subscriptions
+         	  $subscriptionArray = [
+         	     'customer' => $stripe_customer,
                     'items' =>[
                         ['price' => $costs->stripe_price_id, ]
                       ],
@@ -172,7 +174,24 @@ $stripe = new \Stripe\StripeClient($keys->stripe_s);
                             'exp' => $user->data()->plg_sub_exp,
                             'change' =>$user->data()->plg_sub_level,
                             'via' => 'stripe',
-                          ]
+                          ] 
+         	      ];
+         	      
+             	 // Check if coupon setting is enabled
+                if($keys->stripe_coupons == true){
+                    $subscriptionsArrayCoupon = [
+                        'coupon' => $stripe_coupon,
+                    ];
+                } 
+                else {
+                    $subscriptionsArrayCoupon= [];
+                }
+         	  
+         	  $subscriptionArrays = $subscriptionArray + $subscriptionsArrayCoupon;    
+         	  
+         	  //create new subscription
+         	    $subscription = $stripe->subscriptions->create([
+                    $subscriptionArrays
                     ]);
          	     header("Location: subscription.php?&display=success&stripemsg=subupdated");
          	    }
@@ -234,7 +253,7 @@ $msgOutput = Input::get('stripemsg');
     <br /> <br />
     <div class="card mb-4 py-3 border-bottom-success text-center">
         <div class="card-body">
-            <?php 
+            <? 
             if($msgOutput =="subcomplete"){
                 echo "Payment was successful! Enjoy".$settings->site_name."!<br /><br /> The receipt was send to".$userdetails->email;
             }
@@ -305,7 +324,7 @@ if($subscriptionChange == "subscription" && !$pass && $getCoupon == ""){ ?>
                     </section>
                 </div>  
                     <div class="form-group text-center">
-                        <?php // select the pricing ?>
+                        <?// select the pricing ?>
                         <section class="background">
                             <div class="paper">
                               <header class="header-title">Choose service <span>Subscription</span></header>
@@ -348,71 +367,102 @@ if($subscriptionChange == "subscription" && !$pass && $getCoupon == ""){ ?>
 // ****** SUBSCRIPTION CHECKOUT
 if($subscriptionChange == "subscription" && $pass && $opt == "checkout"){
 $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->first();
+if($stripe_price->stripe_reccuring == "Every 1 month"){
+ 	    $recurring = "Monthly";
+}
+if($stripe_price->stripe_reccuring == "Every 3 month"){
+    $recurring = "Every 3 Months";
+}
+if($stripe_price->stripe_reccuring == "Every 6 month"){
+    $recurring = "Every 6 Months";
+}
+if($stripe_price->stripe_reccuring == "Every 1 year"){
+    $recurring = "Annually";
+}
 ?>
 <br />
 <br /><br />
-<div class="container text-center">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row  align-items-center">
-                <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-secondary text-uppercase mb-0"><?=$check3->plan_name?></div>
-                    <div class="font-weight-bold text-uppercase mb-0 titleCost">$ <span id="cost_total" class=" mb-0 titleCost"><?=$check2->cost?></span></div>
-                    <div class="text-xs  font-weight-bold text-secondary text-uppercase mb-0"><?=$check2->descrip?> </div><br /><br />
-                </div> 
-            </div>
-        </div>   
-        <div class="col-md-12 ">
-            <div id="checkout">
-                <form  action="subscription.php?change=subscription&opt=process" method="post" id="payment-form">
-                <div id="payment-request-button">
-                   <!-- A Stripe Element will be inserted here if the browser supports this type of payment method. -->
-                </div><br />
-                
-                <div class="hr"><hr class="hr"/></div>
-                <section>
-                    <fieldset class="with-state">
-                        <label>
-                            <span>Email</span>
-                            <input name="email" type="email" class="field" value="<?=$user->data()->email?>" readonly required>
-                        </label>
-                        <label>
-                            <span>Name</span>
-                            <input name="cname" class="field" placeholder="Jenny Rosen" required>
-                        </label>
-                        <div class="payment-info">
-                            <input name="stripe_price" style="display: none;" class="planOption"  id="stripe_price"  value="<?=$stripe_price->stripe_price_id?>"> 
-                            <input type="hidden" name="plan_cst" value="<?=$cost?>">
-                            <input type="hidden" name="plan" value="<?=$plan?>">
-                            <input type="hidden" name="paymentOption" value="<?=$po?>">   
-                            <?php //stripe code below required for checkout /?>
-                            <label>
-                                <span>Card</span>
-                                <div id="card-element" class="field"></div>
-                                <div id="card-errors" role="alert"></div>
-                            </label>
-                            <?php
-                            if($keys->stripe_coupons == true){ echo
-                                "<label>
-                                <span>Coupon</span>
-                                <input id='coupon-input' type='text' placeholder='Coupon'   >
-                                <input id='stripe_coupon' name='stripe_coupon' type='hidden' class='field' name='stripe_coupon'>
-                                </label>";
-                            } 
-                            ?>
+<div class="container">
+    <div class="row"><div class="col"></div>
+        <div class="col-md-8 col-sm-12">
+            <form  action="subscription.php?change=subscription&opt=process" method="post" id="payment-form">
+            <div class="card-body">
+              <div class="card-text pt-1">
+                   <div class="card-text pt-1">
+                <div class="mb-3 text-center" >
+                    <section class="background">
+                        <div class="paper">
+                        <input name="stripe_price" style="display: none;" class="planOption"  id="stripe_price"  value="<?=$stripe_price->stripe_price_id?>"> 
+                        <input type="hidden" name="plan_cst" value="<?=$cost?>">
+                        <input type="hidden" name="plan" value="<?=$plan?>">
+                        <input type="hidden" name="paymentOption" value="<?=$po?>"> 
+                        <header class="header-title">Checkout</header>
+                        
+                        <aside class="radio-container">
+                            <div class="lbl-radio">
+                              <div class="content">
+                                <div class="title text-left"><?=$check3->plan_name?></div>
+                                <p class="text-left">Tier : <?=$check2->descrip?></p>
+                                <p class="text-left">Reccuring : <?=$recurring?></p>
+                                <p class="text-left">Price : $<span id="cost_total"><?=$check2->cost?></span></p>
+                                <p class="text-left">Email : <?=$user->data()->email?></p>
+                              </div>
+                            </div>
+                        </aside>
+                        
+                        <aside class="radio-container">
+                        <div class="lbl-radio">
+                          <div class="content">
+                            <div class="title text-left">Payment method</div>
+                            <p class="text-left"><span>Name :</span> <div><input id="cname" name="cname" type="text" class="form-control" value="<?=$userdetails->fname?>" required readonly/></div></p>
+                            <p class="text-left"><span>Card :</span>
+                                <div id="card-element" class="form-control"></div>
+                                <div id="card-errors" role="alert"></div>  
+                            </p>
+                            <p class="text-left terms">
+                               By providing your card information, you allow <?=$settings->site_name?> to charge your card for future payments in accordance with their terms.
+                            </p>
+                            <p class="text-left terms">
+                                By confirming your new plan, you agree to <?=$settings->site_name?>'s Terms of Service and Privacy Policy.
+                            </p>
+                          </div>
                         </div>
-                    </fieldset>
-                    <?php
-                    if($keys->stripe_coupons == true){ echo
-                        "<button id='coupon-button' class='col-sm-12' >Apply Coupon</button>
-                         <center><h2 id='error-label' /></center>
-                        ";
-                    }?>
-                    <button type="submit" class="col-sm-12" >Pay $ <span id="cost_total2"><?=$check2->cost?></span></button>
-                    <div id="messages" role="alert"></div>
+                        </aside>
+                        
+                        
+                        <?
+                        if($keys->stripe_coupons == true){ 
+                            echo
+                            "<aside class='radio-container'>
+                                <label for='' class='lbl-radio'>
+                                  <div class='content'>
+                                    <div class='title text-left'>Coupon</div>
+                                    <p class='text-left'>
+                                    <input id='coupon-input' type='text' placeholder='Coupon' class='form-control'  >
+                                    <input id='stripe_coupon' name='stripe_coupon' type='hidden' class='field' name='stripe_coupon'></p> 
+                                    <button id='coupon-button' class='col-sm-12 btn btn-primary' >Apply Coupon</button>
+                                     <center><h2 id='error-label' /></center>
+                                  </div>
+                                </label>
+                            </aside>
+                            ";
+                        } 
+                        ?>
+                        
+                        
+                        <button type="submit" class="btn btn-primary btn-block" >Subscribe $ <span id="cost_total2"><?=$check2->cost?></span></button>
+                        
+                        
+                        
+                    </div>
                 </section>
+                
               </form> <br /><br />
             </div>
+        </div></div>
+        </div></div>
+        <div class="col"></div>
+        
         </div>
     </div>
 </div>
@@ -539,7 +589,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
         errorLabel.innerHTML = text;
     }
   </script>
-<?php    } }//end tag  ?>
+<?    } }//end tag  ?>
 
 
 <?php 
@@ -598,9 +648,9 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             </div>
             <br /><br /><br />
             <div class='col-md-6'>
-            <table class="table table-borderless">
+            <table class="table table-borderless table-responsive">
                 <tbody>
-                 <?php
+                 <?
                  // Remove to view JSON LIST ARRAY 
                  // print("<pre>".print_r($cardLoop,true)."</pre>");
                 foreach ($cardLoop as $card) {
@@ -628,7 +678,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 <h6>Invoices</h6>
                 <table class='table '>
                  <thead> 
-                    <?php 
+                    <? 
                     // Remove to view JSON LIST ARRAY 
                     // print("<pre>".print_r($invoiceLoop,true)."</pre>");
                     foreach ($invoiceLoop as $rslt) {
@@ -649,7 +699,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 </table>
                     
             </div>
-            <?php } else { 
+            <?} else { 
                 //take them to create a subscription and a customer id with stripe.
                 header("Location: subscription.php?change=subscription"); }
         }
@@ -706,6 +756,10 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                                               <div class="content">
                                                 <div class="title text-left">Cancel</div>
                                                 <p class="text-left">Are you sure you want to cancel? If so, click the button below :c</p>
+                                                <p class="text-left terms">
+                                                    By canceling your plan, you agree to <?=$settings->site_name?>'s Terms of Service and Privacy Policy. 
+                                                    Canceling your plan will stop reccuring payments, but you will still have access until <?=$user->data()->plg_sub_exp;?>.
+                                                </p>
                                               </div>
                                             </label>
                                     </aside>
@@ -723,7 +777,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
         </div>
           
         
-        <?php }
+        <?}
 
 // ****** UPDATE SUBSCRIPTION
         if($subscriptionChange == "" && $opt == "" &&  $subChange == "update"  && $getCoupon == ""){?>
@@ -756,7 +810,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 </div>  
                 
                 <div class="form-group text-center">
-                    <?php // select the pricing ?>
+                    <?// select the pricing ?>
                         <section class="background">
                             <div class="paper">
                               <header class="header-title">Choose service <span>Subscription</span></header>
@@ -773,7 +827,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                                           <div class="content">
                                             <div class="title"><?=$p->descrip?></div>
                                             <div class="subtext"><?=$subset->sym?><?=$p->cost?> 
-                                                <?php
+                                                <?
                                                     if($p->stripe_reccuring == "Every 1 month"){
                                                  	    echo "Monthly";
                                                  	}
@@ -803,7 +857,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             <div class="col"></div>
             </div>
             </div>
-        <?php
+        <?
         }
         
         // ****** UPDATE PREVIEW SUBSCRIPTION
@@ -842,17 +896,34 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                         <section class="background">
                             <div class="paper">
                                 <header class="header-title">Checkout</header>
-                                  <aside class="radio-container"> 
+                                  <aside class="radio-container">
                                             <label for="" class="lbl-radio">
                                               <div class="content">
                                                 <div class="title text-left"><?=$plans->plan_name?></div>
                                                 <p class="text-left">Tier : <?=$costs->descrip?></p>
                                                 <p class="text-left">Reccuring : <?=$recurring?></p>
-                                                <p class="text-left">Price : $<?=$costs->cost?></p>
+                                                <p class="text-left">Price : $<span id="cost_total"><?=$costs->cost?></span></p>
                                               </div>
                                             </label>
                                     </aside>
-                            
+                                    <?
+                                        if($keys->stripe_coupons == true){ 
+                                            echo
+                                            "<aside class='radio-container'>
+                                                <label for='' class='lbl-radio'>
+                                                  <div class='content'>
+                                                    <div class='title text-left'>Coupon</div>
+                                                    <p class='text-left'>
+                                                    <input id='coupon-input' type='text' placeholder='Coupon' class='form-control'  >
+                                                    <input id='stripe_coupon' name='stripe_coupon' type='hidden' class='field' name='stripe_coupon'></p> 
+                                                    <button id='coupon-button' class='col-sm-12 btn btn-primary' >Apply Coupon</button>
+                                                     <center><h2 id='error-label' /></center>
+                                                  </div>
+                                                </label>
+                                            </aside>
+                                            ";
+                                        } 
+                                    ?>
                                     <aside class="radio-container">
                                             <label for="" class="lbl-radio">
                                               <div class="content">
@@ -867,11 +938,14 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                                               <div class="content">
                                                 <div class="title text-left">Warning</div>
                                                 <p class="text-left">Updating your subscription will reset the billing cycle and will charge your
-                                                    default card the full amount. If you wish to use a different card for checkout, please update the new card to the default payment. </p> 
+                                                    default card the full amount. If you wish to use a different card for checkout, please update the new card to the default payment. </p>
+                                                <p class="text-left terms">
+                                                    By confirming your new plan, you agree to <?=$settings->site_name?>'s Terms of Service and Privacy Policy.
+                                                </p>
                                               </div>
                                             </label>
                                     </aside>
-                                    <header class="header-title text-right"> <span>Due today : $<?=$costs->cost?></span></header>
+                                    <header class="header-title text-right"> <span>Due today : <span id="cost_total2">$<?=$costs->cost?></span></span></header>
                                     <br />
                                 <input type="submit" value="Change Plan" id="subBtn" class="btn  btn-primary">
                             </div>
@@ -884,7 +958,59 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
             </div><div class="col"></div>
             </div>
         </div>
-        <?php
+                <?if($keys->stripe_coupons == true){ 
+                echo "
+                <script>
+                    var couponInput = document.getElementById('coupon-input');
+                    var couponButton = document.getElementById('coupon-button');
+                    var errorLabel = document.getElementById('error-label');
+                    var costTotal = document.getElementById('cost_total');
+                    var costTotal2 = document.getElementById('cost_total2');
+                    
+                    couponButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    fetch('".$us_url_root."usersc/plugins/subscriptions/couponCheck.php', {
+                      method: 'POST',
+                      
+                      body: JSON.stringify({
+                        coupon: couponInput.value,
+                        price_id : '".$costs->stripe_price_id."',
+                      })
+                    })
+                    .then(response => {  return response.json();})
+                    .then((data) => {
+                      if(data.is_valid) {
+                        // Coupon applied  
+                        displayLabelCoupon('Coupon applied!');
+                        // Update coupon for checkout
+                        document.getElementById('stripe_coupon').value = (data.id);
+                        var costPre = '".$costs->cost."';
+                        var discount = (data.percent_off);
+                        var afterDiscount = (costPre - (costPre * (discount/100))).toFixed(2);
+                        displayLabelCost(afterDiscount);
+                      }
+                      
+                      else {
+                        displayLabelCoupon('Invalid coupon, try again');
+                      }
+                        })
+                      })
+                      
+                      function displayLabelCoupon(text) {
+                            console.log(text);
+                            errorLabel.innerHTML = text;
+                        }
+                        
+                      function displayLabelCost(text) {
+                            console.log(text);
+                            costTotal.innerHTML = text;
+                            costTotal2.innerHTML = text;
+                        }
+                </script>
+                ";
+                
+                }
         }
         
         
@@ -901,33 +1027,34 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
               <div class="card-text pt-1">
                 <div class="card-text pt-1">
                     <div class="mb-3 text-center" >
+                        <form  action="" method="post" id="payment-form">
                         <section class="background">
                             <div class="paper">
                                 <header class="header-title">Add Payment</header>
                                   <aside class="radio-container">
-                                            
-                                            <label for="" class="lbl-radio2">
+                                            <div class="lbl-radio2">
                                               <div class="content">
                                                 <div class="title text-left">Add Card</div>
-                                                <form  action="" method="post" id="payment-form">
-                                                <section>
+                                                <p>
                                                   <fieldset class="with-state">
                                                      <div class="payment-info">
-                                                        <label><span class="d-none d-sm-block">Card</span>
+                                                        <label>
                                                             <div id="card-element" class="field"></div>
                                                             <div id="card-errors" role="alert"></div>
                                                         </label>
                                                     </div>
                                                   </fieldset>
+                                                  </p>
+                                                    <p class="text-left terms">
+                                                     By providing your card information, you allow <?=$settings->site_name?> to charge your card for future payments in accordance with their terms.
+                                                    </p>
                                                   <button type="submit" class="btn-block btn btn-primary" >Add Payment</button>
-                                                </section>
-                                             </form>
                                               </div>
-                                            </label>
+                                            </div>
                                     </aside>
-                                    <br />
                             </div>
                         </section>
+                        </form>
                     </div>  
                     
                    </div>
@@ -991,7 +1118,7 @@ $stripe_price = $db->query("SELECT * FROM plg_sub_cost WHERE id = ?",[$cost])->f
                 }
               </script>
             
-            <?php
+            <?
     }        
 ?>
 <!-- footers -->
