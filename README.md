@@ -8,25 +8,27 @@ To install, please use a fresh copy of userspice. This is the membership plugin 
 - membership.php should copy to usersc/ on install, but if not, its located in plugins/membership/files.
   - Drop membership.php in usersc/
 
-membership.php will be the main page where users can...
+subscription.php will be the main page where users can...
   - See information about their subscription
   - Update their subscription
   - Cancel their subscription
   - View payment methods
-  - Edit payment methods
   - Delete payment methods
   - View invoices
   - Listing all balance transactions 
+
+In the configuration page you can...
+  - Add levels/ pricing options
+  - View Existing plans/levels
+  - Edit stripe keys
   - Payouts (yassssss)
-  - Refunds
-  - Coupons (Create/Delete/View) 
+  - Refunds(view/ refund)
+  - Coupons (Create/Delete/View)
+  - Coupons (on/off setting) 
   - List Invoices 
 
-Future updates will include the following feautures. This will be in the admin page, so the configure.php file will get an update. As of right now, it looks a little ugly, so it will get a css update to try to clean things up and make it look more like a "admin dashboard."
-- Better listing current stripe subscriptions
-- Better listing on current stripe customers
-- Better listing on current stripe Products/prices
-- Coupons! Using them with the plugin
+As of right now, this plugin is fully functioning, but there might be future updates. Future updates will include the following feautures. 
+  - Option to email customer for a failed payment
 
 
-Also, I will clean up the code a little, its a bit messy. 
+Also, I will clean up the code a little, its a bit messy. I at the time do not have much more to add to the plugin as stripe api can be limiting. but like said, it is fully functional. If there are any bugs, do notify me on discord. Miggy#3221, Thanks.
