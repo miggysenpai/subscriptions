@@ -29,6 +29,7 @@ In the configuration page you can...
 
 As of right now, this plugin is fully functioning, but there might be future updates. Future updates will include the following feautures. 
   - Option to email customer for a failed payment
+  - Create an invoice and send to customer(One type payment)
 
 
 Also, I will clean up the code a little, its a bit messy. I at the time do not have much more to add to the plugin as stripe api can be limiting. but like said, it is fully functional. If there are any bugs, do notify me on discord. Miggy#3221, Thanks.
